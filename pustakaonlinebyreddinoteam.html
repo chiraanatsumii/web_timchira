@@ -1,0 +1,3280 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PustakaOnline — Red Dino Studio</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Nunito:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --bg2: #111118;
+    --bg3: #1a1a26;
+    --card: #16161f;
+    --card2: #1e1e2e;
+    --accent: #e50914;
+    --accent2: #ff6b35;
+    --gold: #f5c518;
+    --text: #e8e8f0;
+    --muted: #888899;
+    --border: #2a2a3a;
+    --success: #2ecc71;
+    --chat-mine: #1a3a5c;
+    --chat-other: #2a1a3a;
+    --font-display: 'Playfair Display', serif;
+    --font-body: 'Nunito', sans-serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: var(--font-body);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ======== OPENING SCREEN ======== */
+  #opening {
+    position: fixed; inset: 0;
+    background: #000;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .opening-bg {
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 30% 50%, #1a0a2e 0%, #000 60%),
+                radial-gradient(ellipse at 70% 50%, #0a1a2e 0%, transparent 60%);
+  }
+  .opening-particles {
+    position: absolute; inset: 0;
+    overflow: hidden;
+  }
+  .particle {
+    position: absolute;
+    width: 2px; height: 2px;
+    background: white;
+    border-radius: 50%;
+    animation: float-up linear infinite;
+    opacity: 0;
+  }
+  @keyframes float-up {
+    0% { opacity: 0; transform: translateY(0) scale(1); }
+    10% { opacity: 1; }
+    90% { opacity: 0.5; }
+    100% { opacity: 0; transform: translateY(-100vh) scale(0.5); }
+  }
+  .opening-logo {
+    position: relative; z-index: 2;
+    text-align: center;
+    animation: logo-reveal 1.2s ease forwards;
+    opacity: 0;
+  }
+  @keyframes logo-reveal {
+    0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .dino-svg {
+    width: 100px; height: 100px;
+    margin-bottom: 16px;
+    filter: drop-shadow(0 0 30px #e5091480);
+  }
+  .opening-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-weight: 900;
+    letter-spacing: -2px;
+    background: linear-gradient(135deg, #fff 0%, #e50914 50%, #ff6b35 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  .opening-sub {
+    font-size: 1rem;
+    color: var(--muted);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 8px;
+    font-weight: 300;
+  }
+  .opening-tagline {
+    font-size: 0.9rem;
+    color: #666;
+    margin-top: 24px;
+    letter-spacing: 2px;
+  }
+  .opening-enter {
+    margin-top: 40px;
+    position: relative; z-index: 2;
+    opacity: 0;
+    animation: fade-in 0.8s ease 1.8s forwards;
+  }
+  @keyframes fade-in { to { opacity: 1; } }
+  .btn-enter {
+    padding: 14px 48px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 0 40px #e5091440;
+  }
+  .btn-enter:hover {
+    background: #ff1a1a;
+    box-shadow: 0 0 60px #e5091460;
+    transform: scale(1.03);
+  }
+  .opening-line {
+    width: 60px; height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 20px auto 0;
+    animation: expand-line 1s ease 1.5s both;
+  }
+  @keyframes expand-line {
+    from { width: 0; opacity: 0; }
+    to { width: 60px; opacity: 1; }
+  }
+
+  /* ======== AUTH SCREEN ======== */
+  #auth-screen {
+    display: none;
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #0a0a0f 0%, #0d0d1a 100%);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+  #auth-screen.active { display: flex; }
+  .auth-bg-art {
+    position: absolute; inset: 0;
+    overflow: hidden;
+    opacity: 0.07;
+  }
+  .auth-bg-art::before {
+    content: '';
+    position: absolute;
+    width: 600px; height: 600px;
+    border-radius: 50%;
+    border: 1px solid var(--accent);
+    top: -200px; right: -200px;
+    animation: spin-slow 30s linear infinite;
+  }
+  @keyframes spin-slow { to { transform: rotate(360deg); } }
+  .auth-card {
+    position: relative; z-index: 2;
+    width: 420px; max-width: 95vw;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 20px 80px rgba(0,0,0,0.6);
+  }
+  .auth-logo {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .auth-logo h1 {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .auth-logo p { font-size: 0.8rem; color: var(--muted); margin-top: 4px; }
+  .auth-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 4px;
+    margin-bottom: 28px;
+  }
+  .auth-tab {
+    flex: 1;
+    padding: 10px;
+    border: none;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .auth-tab.active {
+    background: var(--accent);
+    color: white;
+  }
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .form-group input {
+    width: 100%;
+    padding: 12px 16px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .form-group input:focus { border-color: var(--accent); }
+  .btn-primary {
+    width: 100%;
+    padding: 14px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 8px;
+  }
+  .btn-primary:hover { background: #ff1a1a; transform: translateY(-1px); }
+  .auth-error {
+    color: var(--accent);
+    font-size: 0.85rem;
+    margin-top: 10px;
+    display: none;
+    text-align: center;
+  }
+  .auth-error.show { display: block; }
+
+  /* ======== MAIN APP ======== */
+  #app { display: none; }
+  #app.active { display: block; }
+
+  /* NAVBAR */
+  .navbar {
+    position: fixed; top: 0; left: 0; right: 0;
+    width: 100%;
+    z-index: 100;
+    padding: 0 5%;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.9) 0%, transparent 100%);
+    transition: background 0.3s;
+  }
+  .navbar.scrolled {
+    background: rgba(10,10,15,0.98);
+    box-shadow: 0 1px 0 var(--border);
+  }
+  .nav-logo {
+    font-family: var(--font-display);
+    font-size: 1.5rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+    cursor: pointer;
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .nav-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: color 0.3s;
+    background: none; border: none;
+  }
+  .nav-link:hover, .nav-link.active { color: var(--text); }
+  .nav-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .nav-user {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+  }
+  .nav-avatar {
+    width: 36px; height: 36px;
+    border-radius: 4px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 0.9rem;
+  }
+  .nav-username { font-size: 0.9rem; font-weight: 600; }
+  .btn-icon {
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    width: 38px; height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 1rem;
+    transition: all 0.3s;
+  }
+  .btn-icon:hover { background: var(--card); border-color: var(--accent); }
+  .btn-menu {
+    display: none;
+    border-radius: 50%;
+    min-width: 38px;
+    padding: 0;
+    line-height: 1;
+  }
+  .mobile-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    max-width: calc(100vw - 32px);
+    margin-top: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.35);
+    padding: 14px;
+    z-index: 200;
+  }
+  .mobile-menu.open {
+    display: block;
+  }
+  .mobile-menu-header {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    padding-bottom: 12px;
+  }
+  .mobile-menu-title {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+  }
+  .mobile-user-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mobile-user-info span {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--text);
+    overflow-wrap: anywhere;
+  }
+  .mobile-menu-item {
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    cursor: pointer;
+    font-size: 0.95rem;
+    padding: 12px 14px;
+    border-radius: 10px;
+    transition: background 0.2s;
+  }
+  .mobile-menu-item:hover { background: rgba(255,255,255,0.06); }
+
+  /* HERO */
+  .hero {
+    padding-top: 64px;
+    min-height: 560px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(135deg, #0a0a0f 0%, #1a0a20 50%, #0a1020 100%);
+  }
+  .hero-grid {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(var(--border) 1px, transparent 1px),
+      linear-gradient(90deg, var(--border) 1px, transparent 1px);
+    background-size: 60px 60px;
+    opacity: 0.3;
+  }
+  .hero-glow {
+    position: absolute;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, #e5091430 0%, transparent 70%);
+    top: -100px; left: -100px;
+    animation: pulse-glow 4s ease-in-out infinite;
+  }
+  @keyframes pulse-glow {
+    0%, 100% { transform: scale(1); opacity: 0.6; }
+    50% { transform: scale(1.2); opacity: 1; }
+  }
+  .hero-content {
+    position: relative; z-index: 2;
+    padding: 80px 5% 60px;
+    max-width: 700px;
+  }
+  .hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    background: rgba(229,9,20,0.15);
+    border: 1px solid rgba(229,9,20,0.4);
+    border-radius: 50px;
+    font-size: 0.75rem;
+    color: var(--accent);
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.2rem, 5vw, 3.5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .hero-title span { color: var(--accent); }
+  .hero-desc {
+    font-size: 1rem;
+    color: var(--muted);
+    line-height: 1.7;
+    max-width: 500px;
+    margin-bottom: 28px;
+  }
+  .hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+  .btn-hero {
+    padding: 13px 30px;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-hero-primary {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 4px 20px rgba(229,9,20,0.4);
+  }
+  .btn-hero-primary:hover { background: #ff1a1a; box-shadow: 0 6px 30px rgba(229,9,20,0.6); transform: translateY(-2px); }
+  .btn-hero-secondary {
+    background: rgba(255,255,255,0.1);
+    color: white;
+    border: 1px solid rgba(255,255,255,0.2);
+    backdrop-filter: blur(10px);
+  }
+  .btn-hero-secondary:hover { background: rgba(255,255,255,0.2); }
+
+  /* SECTIONS */
+  .section { padding: 48px 5%; }
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 28px;
+  }
+  .section-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 700;
+  }
+  .section-title span { color: var(--accent); }
+  .section-link {
+    font-size: 0.85rem;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    transition: color 0.3s;
+  }
+  .section-link:hover { color: var(--text); }
+
+  /* BOOK GRID */
+  .books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+  }
+  .book-card {
+    background: var(--card);
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+  }
+  .book-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 30px rgba(229,9,20,0.2);
+  }
+  .book-cover {
+    width: 100%;
+    aspect-ratio: 3/4;
+    object-fit: cover;
+    display: block;
+  }
+  .book-cover-placeholder {
+    width: 100%;
+    aspect-ratio: 3/4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .book-cover-placeholder::before {
+    content: '';
+    position: absolute; inset: 0;
+    opacity: 0.15;
+  }
+  .book-info {
+    padding: 14px;
+  }
+  .book-title {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .book-author {
+    font-size: 0.78rem;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+  .book-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .stars { display: flex; gap: 2px; }
+  .star { font-size: 0.75rem; color: #444; transition: color 0.2s; }
+  .star.filled { color: var(--gold); }
+  .rating-count { font-size: 0.75rem; color: var(--muted); }
+  .book-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    padding: 3px 8px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 3px;
+  }
+
+  /* BOOK DETAIL MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.85);
+    z-index: 500;
+    backdrop-filter: blur(4px);
+    align-items: flex-start;
+    justify-content: center;
+    padding: 60px 20px 20px;
+    overflow-y: auto;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal {
+    width: 900px; max-width: 100%;
+    background: var(--card);
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    position: relative;
+    animation: modal-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes modal-in {
+    from { opacity: 0; transform: scale(0.9) translateY(20px); }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px; right: 16px;
+    width: 36px; height: 36px;
+    background: rgba(0,0,0,0.5);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1.2rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.3s;
+  }
+  .modal-close:hover { background: var(--accent); }
+  .modal-hero {
+    display: flex;
+    gap: 32px;
+    padding: 32px;
+    background: linear-gradient(135deg, var(--bg2) 0%, var(--bg3) 100%);
+  }
+  .modal-cover {
+    width: 180px;
+    flex-shrink: 0;
+    aspect-ratio: 3/4;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  .modal-cover img { width: 100%; height: 100%; object-fit: cover; }
+  .modal-cover-ph {
+    width: 100%; height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 4rem;
+  }
+  .modal-meta { flex: 1; }
+  .modal-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    background: rgba(229,9,20,0.2);
+    border: 1px solid rgba(229,9,20,0.4);
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-radius: 3px;
+    margin-bottom: 12px;
+  }
+  .modal-title {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 900;
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+  .modal-author {
+    color: var(--muted);
+    margin-bottom: 16px;
+    font-size: 0.9rem;
+  }
+  .modal-info-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .info-item { }
+  .info-label {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 3px;
+  }
+  .info-value {
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .btn-sm {
+    padding: 9px 20px;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    border: none;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-red { background: var(--accent); color: white; }
+  .btn-red:hover { background: #ff1a1a; }
+  .btn-outline {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+  .modal-body { padding: 32px; }
+  .modal-tabs {
+    display: flex;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .modal-tab {
+    padding: 10px 20px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: all 0.3s;
+  }
+  .modal-tab.active {
+    color: var(--text);
+    border-bottom-color: var(--accent);
+  }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+  .summary-para {
+    margin-bottom: 14px;
+    line-height: 1.8;
+    color: #ccc;
+    font-size: 0.95rem;
+  }
+  .summary-para:first-child::first-letter {
+    font-family: var(--font-display);
+    font-size: 3.5rem;
+    font-weight: 900;
+    color: var(--accent);
+    float: left;
+    line-height: 0.8;
+    margin-right: 8px;
+    margin-top: 6px;
+  }
+
+  /* RATING SECTION */
+  .rating-section {
+    background: var(--bg2);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .rating-label {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  .user-rating-stars {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+  .rate-star {
+    font-size: 2rem;
+    cursor: pointer;
+    color: #333;
+    transition: all 0.2s;
+    background: none;
+    border: none;
+    line-height: 1;
+  }
+  .rate-star:hover, .rate-star.active { color: var(--gold); transform: scale(1.2); }
+  .rating-avg-display {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+  }
+  .rating-big {
+    font-family: var(--font-display);
+    font-size: 2.5rem;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .rating-details small {
+    display: block;
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-top: 2px;
+  }
+
+  /* REFLECTOR */
+  .reflector-section {
+    background: linear-gradient(135deg, rgba(229,9,20,0.05), rgba(255,107,53,0.05));
+    border: 1px solid rgba(229,9,20,0.2);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .reflector-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .reflector-title::before {
+    content: '🔥';
+    font-size: 1.1rem;
+  }
+  .reflector-text {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #bbb;
+    font-style: italic;
+  }
+  .reflector-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  .tag {
+    padding: 4px 12px;
+    background: rgba(229,9,20,0.12);
+    border: 1px solid rgba(229,9,20,0.25);
+    border-radius: 50px;
+    font-size: 0.75rem;
+    color: var(--accent2);
+    font-weight: 600;
+  }
+
+  /* AGENDA / RECOMMENDATION */
+  .agenda-section {
+    background: var(--bg2);
+    border-radius: 12px;
+    padding: 24px;
+    margin: 0 5% 40px;
+    border: 1px solid var(--border);
+  }
+  .agenda-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+  .agenda-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+  }
+  .agenda-title-wrap h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .agenda-title-wrap p { font-size: 0.8rem; color: var(--muted); }
+  .agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 14px;
+  }
+  .agenda-item {
+    background: var(--card);
+    border-radius: 10px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .agenda-item:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .agenda-thumb {
+    width: 50px; height: 66px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  .agenda-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .agenda-info h4 {
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    line-height: 1.3;
+  }
+  .agenda-info p { font-size: 0.75rem; color: var(--muted); }
+  .agenda-reason {
+    font-size: 0.72rem;
+    color: var(--accent2);
+    margin-top: 4px;
+    font-style: italic;
+  }
+
+  /* CHAT */
+  .chat-fab {
+    position: fixed;
+    bottom: 28px; right: 28px;
+    width: 56px; height: 56px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    cursor: pointer;
+    z-index: 300;
+    box-shadow: 0 4px 20px rgba(229,9,20,0.5);
+    border: none;
+    color: white;
+    transition: all 0.3s;
+  }
+  .chat-fab:hover { transform: scale(1.1); box-shadow: 0 6px 30px rgba(229,9,20,0.7); }
+  .chat-badge {
+    position: absolute;
+    top: -4px; right: -4px;
+    width: 18px; height: 18px;
+    background: var(--gold);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    display: none;
+  }
+  .chat-badge.show { display: flex; }
+  .chat-panel {
+    position: fixed;
+    bottom: 96px; right: 28px;
+    width: 360px; height: 500px;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    z-index: 299;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.7);
+    animation: chat-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes chat-pop {
+    from { opacity: 0; transform: scale(0.8) translateY(20px); transform-origin: bottom right; }
+    to { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  .chat-panel.open { display: flex; }
+  .chat-header {
+    padding: 16px 18px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .chat-header-info { display: flex; align-items: center; gap: 10px; }
+  .chat-online-dot {
+    width: 10px; height: 10px;
+    background: var(--success);
+    border-radius: 50%;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  .chat-header h3 { font-size: 0.95rem; font-weight: 700; }
+  .chat-header p { font-size: 0.72rem; color: var(--muted); }
+  .chat-close {
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-size: 1.1rem;
+    cursor: pointer;
+    padding: 4px;
+    transition: color 0.3s;
+  }
+  .chat-close:hover { color: var(--accent); }
+  .chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .chat-msg {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 14px;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    position: relative;
+    animation: msg-in 0.2s ease;
+  }
+  @keyframes msg-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chat-msg.mine {
+    background: var(--chat-mine);
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .chat-msg.other {
+    background: var(--chat-other);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+  .chat-msg-name {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 3px;
+  }
+  .chat-msg-time {
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 4px;
+    text-align: right;
+  }
+  .chat-input-area {
+    padding: 12px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 8px;
+  }
+  .chat-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 9px 16px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .chat-input:focus { border-color: var(--accent); }
+  .chat-send {
+    width: 38px; height: 38px;
+    background: var(--accent);
+    border: none;
+    border-radius: 50%;
+    color: white;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+  .chat-send:hover { background: #ff1a1a; }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    padding: 40px 5% 24px;
+    margin-top: 60px;
+  }
+  .footer-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 40px;
+    flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .footer-brand {}
+  .footer-brand h2 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    font-weight: 900;
+    background: linear-gradient(135deg, #fff, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+  .footer-brand p { font-size: 0.8rem; color: var(--muted); }
+  .footer-links {}
+  .footer-links h4 { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: var(--muted); margin-bottom: 12px; }
+  .footer-links a {
+    display: block;
+    font-size: 0.85rem;
+    color: #888;
+    text-decoration: none;
+    margin-bottom: 7px;
+    cursor: pointer;
+    transition: color 0.3s;
+  }
+  .footer-links a:hover { color: var(--text); }
+  .footer-bottom {
+    border-top: 1px solid var(--border);
+    padding-top: 20px;
+    text-align: center;
+  }
+  .copyright {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .copyright span { color: var(--accent); }
+  .copyright strong { color: var(--text); }
+
+  /* SEARCH BAR */
+  .search-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    width: 260px;
+    max-width: 100%;
+    min-width: 0;
+    overflow: hidden;
+    transition: all 0.3s;
+  }
+  .search-bar:focus-within { border-color: var(--accent); background: rgba(229,9,20,0.05); }
+  .search-bar input {
+    background: none;
+    border: none;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    outline: none;
+    flex: 1;
+  }
+  .search-bar input::placeholder { color: var(--muted); }
+
+  /* LOGOUT BTN */
+  .btn-logout {
+    padding: 7px 16px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-logout:hover { border-color: var(--accent); color: var(--accent); }
+
+  /* TOAST */
+  .toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 0.9rem;
+    z-index: 9000;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .toast.success { border-color: var(--success); color: var(--success); }
+  .toast.error { border-color: var(--accent); color: var(--accent); }
+
+  /* RESPONSIVE */
+  @media (max-width: 700px) {
+    .navbar {
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: space-between;
+      height: auto;
+      padding: 12px 5% 16px;
+      background: transparent;
+      box-shadow: none;
+    }
+    .navbar.scrolled {
+      background: transparent;
+      box-shadow: none;
+    }
+    .nav-logo { font-size: 1.3rem; flex: 0 0 auto; }
+    .nav-links { display: none; }
+    .btn-menu { display: flex; }
+    .nav-right {
+      width: auto;
+      flex: 1;
+      gap: 10px;
+      flex-wrap: nowrap;
+      justify-content: flex-end;
+      align-items: center;
+      margin-top: 0;
+      position: relative;
+      min-width: 0;
+    }
+    .search-bar {
+      display: flex;
+      width: auto;
+      flex: 1;
+      min-width: 0;
+      max-width: calc(100% - 50px);
+    }
+    .search-bar input { min-width: 0; }
+    .nav-user,
+    .btn-logout {
+      display: none;
+    }
+    .modal-hero { flex-direction: column; }
+    .modal-cover { width: 120px; }
+    .modal-info-grid { grid-template-columns: repeat(2, 1fr); }
+    .chat-panel { width: calc(100vw - 16px); right: 8px; }
+    .hero-content { padding: 80px 5% 40px; }
+  }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+  /* Placeholder cover gradients */
+  .cover-1 { background: linear-gradient(160deg, #1a2a3a, #0a3a5a); }
+  .cover-2 { background: linear-gradient(160deg, #2a1a3a, #5a0a3a); }
+  .cover-3 { background: linear-gradient(160deg, #2a1a1a, #5a1a0a); }
+  .cover-4 { background: linear-gradient(160deg, #1a2a1a, #0a4a2a); }
+
+  /* Additional sections */
+  .stats-bar {
+    display: flex;
+    gap: 40px;
+    flex-wrap: wrap;
+    padding: 28px 5%;
+    background: var(--bg2);
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-item { text-align: center; }
+  .stat-number {
+    font-family: var(--font-display);
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--accent);
+  }
+  .stat-label {
+    font-size: 0.75rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  /* ======== READER MODAL ======== */
+  .reader-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: #0d0d10;
+    z-index: 800;
+    flex-direction: column;
+  }
+  .reader-overlay.active { display: flex; }
+  .reader-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 24px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .reader-topbar-left { display: flex; align-items: center; gap: 14px; }
+  .reader-book-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+  }
+  .reader-book-author { font-size: 0.78rem; color: var(--muted); }
+  .reader-progress-wrap {
+    flex: 1;
+    max-width: 300px;
+    margin: 0 24px;
+  }
+  .reader-progress-bar {
+    width: 100%;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .reader-progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+  .reader-progress-text {
+    font-size: 0.7rem;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 4px;
+  }
+  .reader-topbar-right { display: flex; align-items: center; gap: 10px; }
+  .reader-btn {
+    padding: 7px 16px;
+    border-radius: 6px;
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text);
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .reader-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .reader-btn.active-font { background: var(--accent); border-color: var(--accent); color: white; }
+  .reader-close {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: rgba(229,9,20,0.15);
+    border: 1px solid rgba(229,9,20,0.3);
+    color: var(--accent);
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.3s;
+  }
+  .reader-close:hover { background: var(--accent); color: white; }
+  .reader-content-wrap {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    justify-content: center;
+    padding: 48px 24px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+  }
+  .reader-content {
+    width: 100%;
+    max-width: 720px;
+    line-height: 1.9;
+    color: #ddd;
+    font-size: 1.05rem;
+    transition: font-size 0.2s;
+  }
+  .reader-content.font-sm { font-size: 0.9rem; }
+  .reader-content.font-md { font-size: 1.05rem; }
+  .reader-content.font-lg { font-size: 1.25rem; }
+  .reader-content.font-xl { font-size: 1.45rem; }
+  .reader-chapter-title {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin-bottom: 32px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .reader-chapter-title span { color: var(--accent); }
+  .reader-para {
+    margin-bottom: 20px;
+    text-align: justify;
+    text-indent: 2em;
+  }
+  .reader-para:first-of-type::first-letter {
+    font-family: var(--font-display);
+    font-size: 4rem;
+    font-weight: 900;
+    color: var(--accent);
+    float: left;
+    line-height: 0.75;
+    margin-right: 10px;
+    margin-top: 8px;
+  }
+  .reader-chapter-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 48px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    gap: 12px;
+  }
+  .reader-nav-btn {
+    padding: 12px 24px;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .reader-nav-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(229,9,20,0.05); }
+  .reader-nav-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .reader-nav-btn:disabled:hover { border-color: var(--border); color: var(--text); background: var(--card2); }
+  .reader-chapter-info { font-size: 0.8rem; color: var(--muted); text-align: center; }
+  .reader-empty {
+    text-align: center;
+    padding: 80px 20px;
+    color: var(--muted);
+  }
+  .reader-empty h3 {
+    font-family: var(--font-display);
+    font-size: 1.4rem;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .reader-empty p { line-height: 1.7; font-size: 0.9rem; }
+  .reader-empty .reader-empty-icon { font-size: 3rem; margin-bottom: 16px; }
+
+  /* Admin badge */
+  .admin-btn {
+    padding: 6px 14px;
+    background: rgba(245,197,24,0.12);
+    border: 1px solid rgba(245,197,24,0.3);
+    border-radius: 6px;
+    color: var(--gold);
+    font-size: 0.78rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .admin-btn:hover { background: rgba(245,197,24,0.2); }
+
+  /* Edit Book Content Modal */
+  .edit-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 900;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(4px);
+  }
+  .edit-overlay.active { display: flex; }
+  .edit-modal {
+    width: 860px; max-width: 100%;
+    max-height: 90vh;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .edit-header {
+    padding: 20px 24px;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .edit-header h3 {
+    font-family: var(--font-display);
+    font-size: 1.1rem;
+    font-weight: 700;
+  }
+  .edit-header p { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .edit-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px;
+  }
+  .edit-chapter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .edit-chapter-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .edit-chapter-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .edit-chapter-header:hover { background: rgba(255,255,255,0.03); }
+  .edit-chapter-num {
+    width: 28px; height: 28px;
+    background: var(--accent);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .edit-chapter-name { flex: 1; font-size: 0.9rem; font-weight: 600; }
+  .edit-chapter-toggle { color: var(--muted); font-size: 0.8rem; }
+  .edit-chapter-body {
+    padding: 0 16px 16px;
+    display: none;
+  }
+  .edit-chapter-body.open { display: block; }
+  .edit-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 6px;
+    margin-top: 12px;
+  }
+  .edit-input {
+    width: 100%;
+    padding: 10px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .edit-input:focus { border-color: var(--accent); }
+  .edit-textarea {
+    width: 100%;
+    min-height: 160px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.9rem;
+    line-height: 1.7;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .edit-textarea:focus { border-color: var(--accent); }
+  .edit-actions {
+    display: flex;
+    gap: 10px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+    flex-wrap: wrap;
+  }
+  .btn-add-chapter {
+    padding: 9px 18px;
+    background: rgba(46,204,113,0.12);
+    border: 1px solid rgba(46,204,113,0.3);
+    border-radius: 6px;
+    color: var(--success);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .btn-add-chapter:hover { background: rgba(46,204,113,0.2); }
+  .btn-del-chapter {
+    padding: 6px 12px;
+    background: rgba(229,9,20,0.1);
+    border: 1px solid rgba(229,9,20,0.25);
+    border-radius: 5px;
+    color: var(--accent);
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 10px;
+  }
+  .btn-del-chapter:hover { background: rgba(229,9,20,0.2); }
+  .save-indicator {
+    font-size: 0.78rem;
+    color: var(--success);
+    display: none;
+  }
+  .save-indicator.show { display: inline; }
+/* ======== ADMIN PANEL ======== */
+  .admin-overlay {
+    display: none;
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 950;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    backdrop-filter: blur(6px);
+  }
+  .admin-overlay.active { display: flex; }
+  .admin-modal {
+    width: 900px; max-width: 100%;
+    max-height: 90vh;
+    background: var(--card);
+    border-radius: 16px;
+    border: 1px solid rgba(245,197,24,0.3);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 0 60px rgba(245,197,24,0.08);
+  }
+  .admin-header {
+    padding: 20px 28px;
+    background: linear-gradient(135deg, #1a1500, #0a0a0f);
+    border-bottom: 1px solid rgba(245,197,24,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .admin-header-left { display: flex; align-items: center; gap: 14px; }
+  .admin-crown {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem;
+  }
+  .admin-header h2 {
+    font-family: var(--font-display);
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .admin-header p { font-size: 0.78rem; color: var(--muted); margin-top: 2px; }
+  .admin-tabs-nav {
+    display: flex;
+    gap: 0;
+    background: var(--bg2);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    flex-shrink: 0;
+  }
+  .admin-tab-btn {
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    font-family: var(--font-body);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-bottom: -1px;
+  }
+  .admin-tab-btn.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .admin-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 24px 28px;
+  }
+  .admin-section-title {
+    font-family: var(--font-display);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .admin-book-row {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .admin-book-thumb {
+    width: 44px; height: 58px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .admin-book-thumb img { width: 100%; height: 100%; object-fit: cover; }
+  .admin-book-info { flex: 1; }
+  .admin-book-info h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 3px; }
+  .admin-book-info p { font-size: 0.75rem; color: var(--muted); }
+  .admin-url-input {
+    flex: 1.5;
+    padding: 9px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    outline: none;
+    transition: border-color 0.3s;
+  }
+  .admin-url-input:focus { border-color: var(--gold); }
+  .admin-url-input::placeholder { color: #555; }
+  .btn-admin-save {
+    padding: 9px 18px;
+    background: linear-gradient(135deg, var(--gold), #b8860b);
+    border: none;
+    border-radius: 6px;
+    color: #000;
+    font-family: var(--font-body);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .btn-admin-save:hover { opacity: 0.85; transform: translateY(-1px); }
+  .admin-users-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+  .admin-users-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--bg2);
+    color: var(--muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    border-bottom: 1px solid var(--border);
+  }
+  .admin-users-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    vertical-align: middle;
+  }
+  .admin-users-table tr:hover td { background: rgba(255,255,255,0.02); }
+  .user-role-badge {
+    padding: 3px 10px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  .role-admin { background: rgba(245,197,24,0.15); color: var(--gold); border: 1px solid rgba(245,197,24,0.3); }
+  .role-user { background: rgba(136,136,153,0.12); color: var(--muted); border: 1px solid var(--border); }
+  .btn-kick {
+    padding: 5px 12px;
+    background: rgba(229,9,20,0.1);
+    border: 1px solid rgba(229,9,20,0.25);
+    border-radius: 5px;
+    color: var(--accent);
+    font-size: 0.72rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-kick:hover { background: rgba(229,9,20,0.25); }
+  .admin-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .admin-stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px;
+    text-align: center;
+  }
+  .admin-stat-card .num {
+    font-family: var(--font-display);
+    font-size: 2rem;
+    font-weight: 900;
+    color: var(--gold);
+  }
+  .admin-stat-card .lbl {
+    font-size: 0.72rem;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-top: 4px;
+  }
+  .admin-chat-log {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    max-height: 280px;
+    overflow-y: auto;
+    font-size: 0.82rem;
+    line-height: 1.6;
+  }
+  .admin-chat-entry {
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  .admin-chat-entry:last-child { border-bottom: none; }
+  .admin-chat-user { color: var(--accent2); font-weight: 700; white-space: nowrap; min-width: 90px; }
+  .admin-chat-text { color: #bbb; }
+  .admin-chat-time { color: #555; font-size: 0.7rem; white-space: nowrap; }
+  .btn-clear-chat {
+    padding: 8px 16px;
+    background: rgba(229,9,20,0.1);
+    border: 1px solid rgba(229,9,20,0.25);
+    border-radius: 6px;
+    color: var(--accent);
+    font-family: var(--font-body);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    margin-top: 12px;
+  }
+  .btn-clear-chat:hover { background: rgba(229,9,20,0.2); }
+  .admin-panel-tab { display: none; }
+  .admin-panel-tab.active { display: block; }
+  .admin-email-display {
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 14px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .admin-email-display span { color: var(--gold); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<!-- OPENING SCREEN -->
+<div id="opening">
+  <div class="opening-bg"></div>
+  <div class="opening-particles" id="particles"></div>
+  <div class="opening-logo">
+    <svg class="dino-svg" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="48" fill="none" stroke="#e50914" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.5"/>
+      <text x="50" y="62" text-anchor="middle" font-size="42" fill="#e50914">🦕</text>
+    </svg>
+    <div class="opening-title">PustakaOnline</div>
+    <div class="opening-sub">Red Dino Studio</div>
+    <div class="opening-line"></div>
+    <div class="opening-tagline">Dunia Buku, Satu Layar</div>
+  </div>
+  <div class="opening-enter">
+    <button class="btn-enter" onclick="goToAuth()">Mulai Membaca ›</button>
+  </div>
+</div>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-bg-art"></div>
+  <div class="auth-card">
+    <div class="auth-logo">
+      <h1>PustakaOnline</h1>
+      <p>Masuk atau daftar untuk melanjutkan</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Masuk</button>
+      <button class="auth-tab" onclick="switchTab('register')">Daftar</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="login-form">
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="login-email" placeholder="email@kamu.com">
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="login-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <button class="btn-primary" onclick="doLogin()">Masuk ke PustakaOnline</button>
+      <div class="auth-error" id="login-error"></div>
+    </div>
+
+    <!-- REGISTER -->
+    <div id="register-form" style="display:none">
+      <div class="form-group">
+        <label>Nama Pengguna</label>
+        <input type="text" id="reg-name" placeholder="Nama Kamu">
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" id="reg-email" placeholder="email@kamu.com">
+      </div>
+      <div class="form-group">
+        <label>Password (min. 6 karakter)</label>
+        <input type="password" id="reg-pass" placeholder="••••••••">
+      </div>
+      <div class="form-group">
+        <label>Konfirmasi Password</label>
+        <input type="password" id="reg-pass2" placeholder="••••••••" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <button class="btn-primary" onclick="doRegister()">Buat Akun</button>
+      <div class="auth-error" id="reg-error"></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <!-- NAVBAR -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-logo">PustakaOnline</div>
+    <div class="nav-links">
+      <button class="nav-link active" onclick="scrollToSection('books-section')">Beranda</button>
+      <button class="nav-link" onclick="scrollToSection('agenda-section')">Rekomendasi</button>
+      <button class="nav-link" onclick="openChat()">Komunitas</button>
+    </div>
+    <div class="nav-right">
+      <div class="search-bar">
+        <span>🔍</span>
+        <input type="text" placeholder="Cari buku..." oninput="filterBooks(this.value)">
+      </div>
+      <button class="btn-icon btn-menu" id="mobile-menu-trigger" onclick="toggleMobileMenu()" aria-label="Menu">⋮</button>
+      <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-header">
+          <span class="mobile-menu-title">Akun</span>
+          <div class="mobile-user-info">
+            <span id="mobile-username">Nama Pengguna</span>
+            <span id="mobile-email">email@domain.com</span>
+          </div>
+        </div>
+        <button class="mobile-menu-item" onclick="scrollToSection('books-section'); toggleMobileMenu()">Beranda</button>
+        <button class="mobile-menu-item" onclick="scrollToSection('agenda-section'); toggleMobileMenu()">Rekomendasi</button>
+        <button class="mobile-menu-item" onclick="openChat(); toggleMobileMenu()">Komunitas</button>
+        <button class="mobile-menu-item" onclick="doLogout(); toggleMobileMenu()">Keluar</button>
+      </div>
+      <div class="nav-user">
+        <div class="nav-avatar" id="nav-avatar">?</div>
+        <span class="nav-username" id="nav-username">Loading...</span>
+      </div>
+      <button class="btn-logout" onclick="doLogout()">Keluar</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-grid"></div>
+    <div class="hero-glow"></div>
+    <div class="hero-content">
+      <div class="hero-badge">✦ Perpustakaan Digital</div>
+      <h1 class="hero-title">Temukan <span>Buku Terbaik</span> Untuk Hidupmu</h1>
+      <p class="hero-desc">Koleksi novel pilihan dengan ringkasan mendalam, rating dari sesama pembaca, dan rekomendasi personal yang cerdas.</p>
+      <div class="hero-actions">
+        <button class="btn-hero btn-hero-primary" onclick="scrollToSection('books-section')">▶ Jelajahi Koleksi</button>
+        <button class="btn-hero btn-hero-secondary" onclick="scrollToSection('agenda-section')">★ Rekomendasi Untukmu</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat-item">
+      <div class="stat-number">4</div>
+      <div class="stat-label">Novel Pilihan</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-users">1</div>
+      <div class="stat-label">Pembaca Aktif</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-ratings">0</div>
+      <div class="stat-label">Rating Diberikan</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-number" id="stat-msgs">0</div>
+      <div class="stat-label">Pesan Komunitas</div>
+    </div>
+  </div>
+
+  <!-- BOOKS SECTION -->
+  <section class="section" id="books-section">
+    <div class="section-header">
+      <h2 class="section-title">Koleksi <span>Novel</span></h2>
+      <a class="section-link" onclick="scrollToSection('books-section')">Semua Buku →</a>
+    </div>
+    <div class="books-grid" id="books-grid">
+      <!-- rendered by JS -->
+    </div>
+  </section>
+
+  <!-- AGENDA / RECOMMENDATION -->
+  <div class="agenda-section" id="agenda-section">
+    <div class="agenda-header">
+      <div class="agenda-icon">📚</div>
+      <div class="agenda-title-wrap">
+        <h3>Rekomendasi Untukmu</h3>
+        <p>Dipilihkan berdasarkan tren bacaan & genre favoritmu</p>
+      </div>
+    </div>
+    <div class="agenda-grid" id="agenda-grid">
+      <!-- rendered by JS -->
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-top">
+      <div class="footer-brand">
+        <h2>PustakaOnline</h2>
+        <p>Platform literasi digital Indonesia</p>
+        <p style="margin-top:6px;font-size:0.75rem;color:#555;">Dibangun dengan ❤ oleh Red Dino Studio dan chira</p>
+      </div>
+      <div class="footer-links">
+        <h4>Navigasi</h4>
+        <a onclick="scrollToSection('books-section')">Beranda</a>
+        <a onclick="scrollToSection('agenda-section')">Rekomendasi</a>
+        <a onclick="openChat()">Komunitas Chat</a>
+      </div>
+      <div class="footer-links">
+        <h4>Info</h4>
+        <a>Tentang Kami</a>
+        <a>Kebijakan Privasi</a>
+        <a>Syarat & Ketentuan</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="copyright">
+        &copy; 2026 by: <strong>Red Dino Studio and chira</strong> — <span>PustakaOnline</span><br>
+        <small style="color:#444;font-size:0.7rem;">Seluruh informasi buku bersumber dari data publik. Hak cipta karya masing-masing penulis.</small>
+      </div>
+    </div>
+  </footer>
+</div>
+
+<!-- BOOK DETAIL MODAL -->
+<div class="modal-overlay" id="book-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-hero" id="modal-hero-content"></div>
+    <div class="modal-body">
+      <div class="modal-tabs">
+        <button class="modal-tab active" onclick="switchModalTab('ringkasan', this)">Ringkasan</button>
+        <button class="modal-tab" onclick="switchModalTab('reflector', this)">Reflektor</button>
+        <button class="modal-tab" onclick="switchModalTab('rating', this)">Rating</button>
+      </div>
+      <div id="tab-ringkasan" class="tab-panel active"></div>
+      <div id="tab-reflector" class="tab-panel"></div>
+      <div id="tab-rating" class="tab-panel"></div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT FAB & PANEL -->
+<button class="chat-fab" onclick="toggleChat()" title="Komunitas Chat">
+  💬
+  <span class="chat-badge" id="chat-badge">0</span>
+</button>
+<div class="chat-panel" id="chat-panel">
+  <div class="chat-header">
+    <div class="chat-header-info">
+      <div class="chat-online-dot"></div>
+      <div>
+        <h3>Komunitas Pembaca</h3>
+        <p id="chat-online-count">• Aktif sekarang</p>
+      </div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">✕</button>
+  </div>
+  <div class="chat-messages" id="chat-messages"></div>
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="chat-input" placeholder="Tulis pesan..." maxlength="200" onkeydown="if(event.key==='Enter')sendChatMsg()">
+    <button class="chat-send" onclick="sendChatMsg()">➤</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ==============================
+// DATA STORE (localStorage per-email)
+// ==============================
+const STORE_KEY = 'pustakaonline_data_v1';
+
+function getStore() {
+  try {
+    return JSON.parse(localStorage.getItem(STORE_KEY) || '{}');
+  } catch { return {}; }
+}
+function saveStore(data) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(data));
+}
+
+// Get/set users registry
+function getUsers() {
+  const s = getStore();
+  return s.users || {};
+}
+function saveUsers(users) {
+  const s = getStore();
+  s.users = users;
+  saveStore(s);
+}
+
+// Get/set ratings (per bookId -> { email: rating })
+function getRatings() {
+  const s = getStore();
+  return s.ratings || {};
+}
+function saveRatings(r) {
+  const s = getStore();
+  s.ratings = r;
+  saveStore(s);
+}
+
+// Get/set chat messages
+function getChats() {
+  const s = getStore();
+  return s.chats || [];
+}
+function saveChats(c) {
+  const s = getStore();
+  s.chats = c;
+  saveStore(s);
+}
+
+// Current session
+let currentUser = null;
+
+function sanitize(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+// ==============================
+// BOOKS DATA
+// ==============================
+const books = [
+  {
+    id: 'dasi',
+    title: 'Dompet Ayah, Sepatu Ibu',
+    author: 'J.S. Khairen',
+    penerbit: 'Grasindo',
+    tahun: '2024',
+    tebal: '±200 hlm',
+    ageRec: '15+',
+    genre: ['Keluarga', 'Sosial', 'Inspiratif'],
+    coverEmoji: '👟',
+    coverClass: 'cover-1',
+    coverUrl: 'https://i.pinimg.com/1200x/66/58/1f/66581f12be204dd429c05b6e9cb4e0fb.jpg',
+    badge: 'Best Seller',
+    summary: [
+      'Dompet Ayah, Sepatu Ibu adalah novel karya J.S. Khairen yang terinspirasi langsung dari kisah nyata kedua orang tua penulisnya. Novel ini berlatarkan kaki Gunung Singgalang dan Gunung Marapi di Sumatera Barat, menghadirkan dua dunia yang bertaut dalam sebuah perjalanan hidup yang penuh makna.',
+      'Zenna, anak keenam dari sebelas bersaudara, tumbuh dengan keterbatasan yang tak pernah menyurutkan semangatnya. Ia bersekolah dengan sepatu rombeng, menjual jagung rebus sepanjang jalan, menopang harapan yang menggantung di janji sang ayah yang tak sempat ditepati. Ayahnya pergi sebelum sempat membelikan sepatu baru.',
+      'Di sisi lain, Asrul hidup bersama Umi-nya di lereng Gunung Marapi. Ia tak pernah memiliki dompet, karena setiap rupiah yang ia pegang selalu ia berikan kepada Umi. Di dalam kemiskinan, tumbuh cita-cita yang keras: membuatkan rumah untuk sang ibu, suatu saat nanti.',
+      'Takdir mempertemukan Zenna dan Asrul di bangku kampus. Koran Harian Semangat menjadi benang merah yang merekatkan hubungan mereka. Bersama, mereka bertekad memutus rantai kemiskinan keluarga masing-masing melalui pendidikan, kerja keras, dan keteguhan hati yang tak pernah padam.',
+      'Novel ini bukan sekadar kisah cinta biasa. Ia adalah persembahan untuk setiap orang tua yang berjuang dalam diam, dan untuk setiap anak yang belum sempat mengucapkan terima kasih. "Apa material termahal di dunia? Tangis bangga ayah dan ibumu."'
+    ],
+    reflector: {
+      text: 'Novel ini adalah cermin bagi mereka yang tumbuh di tengah keterbatasan namun bertekad mengubah nasib. J.S. Khairen mengajak pembaca untuk merenungkan kembali makna perjuangan orang tua — betapa sepatu yang kita pakai hari ini mungkin adalah doa yang tak pernah terucap.',
+      tags: ['Apresiasi Keluarga', 'Motivasi', 'Kisah Nyata', 'Melow', 'Inspiratif']
+    }
+  },
+  {
+    id: 'akaim',
+    title: 'Aku Kalah, Aku Merindukanmu',
+    author: 'Coretan Lena',
+    penerbit: 'GradienMediatama',
+    tahun: '2023',
+    tebal: '164 hlm',
+    ageRec: '16+',
+    genre: ['Romance', 'Drama', 'Healing'],
+    coverEmoji: '💔',
+    coverClass: 'cover-2',
+    coverUrl: 'https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcRArWntBdzj8YStsYhqNrWhDgLcfnhxALr4sqcxk-FvWPUypPQN',
+    badge: 'Trending',
+    summary: [
+      '"Aku merindukanmu." Itulah kata yang paling ingin disampaikan, namun sudah tidak bisa lagi. Karena keduanya sudah bukan apa-apa. Sudah bukan siapa-siapa. Inilah kisah yang Coretan Lena tulis untuk mereka yang pernah merasakan betapa beratnya melepaskan seseorang yang belum tentu ingin dilepaskan.',
+      'Dalam buku ini, Coretan Lena menceritakan pergulatan batin seseorang — sebut saja Aku — yang terpaksa berpisah dengan kekasih hatinya namun belum siap melepaskan. Kekosongan itu nyata, terasa di setiap sudut kamar, di setiap lagu yang diputar, di setiap nama yang terbaca di notifikasi.',
+      'Yang memperparah luka adalah kenyataan bahwa sang kekasih telah memiliki orang baru. Aku tidak bisa berbuat apa-apa. Tidak bisa menuntut. Tidak bisa memohon. Yang tersisa hanyalah pertanyaan yang berputar tanpa jawaban: mengapa aku membiarkan orang sepertinya masuk ke dalam hidupku?',
+      'Lena menulis 70% dari buku ini berdasarkan pengalamannya sendiri, menjadikannya sangat autentik dan mengena. Setiap halaman terasa seperti surat yang pernah kita tulis di malam hari, lalu kita hapus sebelum dikirim. Kalimat-kalimatnya pendek, telak, dan tidak bisa dihindarkan.',
+      'Perlahan, namun pasti, Aku belajar merelakan. Buku ini bukan tentang pemulihan yang instan — ia adalah teman duduk di saat paling sepi, yang mengatakan: "Kamu tidak sendiri. Dan ini pun akan berlalu."'
+    ],
+    reflector: {
+      text: 'Coretan Lena mengemas kerinduan menjadi sesuatu yang bisa dipeluk, bukan dihindari. Buku ini adalah reflektor bagi mereka yang sedang dalam fase paling sulit dari sebuah perpisahan — saat pikiran masih di sana, tapi kaki dipaksa melangkah maju.',
+      tags: ['Move On', 'Patah Hati', 'Self-Healing', 'Relatable', 'Emosional']
+    }
+  },
+  {
+    id: 'akdob',
+    title: 'Aku Kalah dengan Orang Barumu',
+    author: 'Coretan Lena',
+    penerbit: 'GradienMediatama',
+    tahun: '2024',
+    tebal: '164 hlm',
+    ageRec: '16+',
+    genre: ['Romance', 'Drama', 'Introspeksi'],
+    coverEmoji: '🌧️',
+    coverClass: 'cover-3',
+    coverUrl: 'https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRu7Ls96XfDRqxxHS1BSpZ1O7OiKxyuZoAal2EcJ-FkPrRhGTZP',
+    badge: 'New',
+    summary: [
+      'Pada akhirnya aku menyadari bahwa bukan aku yang selama ini kamu mau. Kalimat pembuka itu langsung menghantam, dan itulah yang Coretan Lena lakukan sepanjang 164 halaman — menghantam dengan kebenaran yang selama ini kita coba hindari dalam sebuah hubungan yang tak seimbang.',
+      'Buku ini adalah kelanjutan emosional dari perjalanan yang dimulai di "Aku Kalah, Aku Merindukanmu." Kali ini, konfrontasinya lebih nyata: kekasih telah resmi bersama orang baru. Dan Aku harus belajar untuk tidak sekadar merelakan, tetapi juga mendoakan kebahagiaannya.',
+      'Lena mengeksplorasi rasa egois yang tersembunyi dalam cinta — betapa sulitnya untuk benar-benar ikhlas ketika kita masih berharap. Ia tidak menghakimi perasaan itu. Sebaliknya, ia memberinya ruang, membiarkannya bernafas, lalu perlahan melepaskannya.',
+      'Salah satu kekuatan buku ini adalah kejujuran Lena dalam menggambarkan dualitas emosi: ingin bahagia melihat mantan bahagia, tapi di sudut yang paling jujur, ada yang masih terasa perih. Dan itu manusiawi.',
+      '"Berbahagialah. Salam untuk kekasih barumu, dari aku yang pernah jadi pelabuhanmu." Penutup yang sederhana namun terasa seperti pintu yang akhirnya ditutup dengan damai — bukan dibanting, tapi ditutup perlahan dengan penuh penerimaan.'
+    ],
+    reflector: {
+      text: 'Buku ini adalah cermin bagi mereka yang sedang belajar menerima kenyataan bahwa beberapa orang memang bukan milik kita untuk selamanya. Coretan Lena membantu kita menemukan keindahan dalam keikhlasan yang sulit.',
+      tags: ['Ikhlas', 'Penerimaan', 'Cinta Segitiga', 'Healing Journey', 'Perempuan']
+    }
+  },
+  {
+    id: 'smasm',
+    title: 'Seporsi Mie Ayam Sebelum Mati',
+    author: 'Brian Khrisna',
+    penerbit: 'Grasindo / Gramedia',
+    tahun: '2025',
+    tebal: '216 hlm',
+    ageRec: '17+',
+    genre: ['Slice of Life', 'Kesehatan Mental', 'Dramedy'],
+    coverEmoji: '🍜',
+    coverClass: 'cover-4',
+    coverUrl: 'https://perpustakaan.jakarta.go.id/catalog-dispusip/uploaded_files/sampul_koleksi/original/Monograf/326340.png',
+    badge: 'Cetak ke-100',
+    summary: [
+      'Ale adalah pria berusia 37 tahun dengan tubuh bongsor — tinggi 189 cm, berat 138 kg, berkulit gelap, dan memiliki masalah dengan bau badan. Sejak kecil ia menjadi korban perundungan, dan hingga dewasa, lingkungan tidak pernah benar-benar menerimanya. Ia didiagnosis mengalami depresi akut.',
+      'Suatu malam setelah lembur, Ale duduk sendirian di parkiran yang lengang, menemani dirinya sendiri dengan sebotol bir, rokok murah, dan sepotong kue ulang tahun yang ia beli sendiri. Tekadnya sudah bulat: 24 jam dari sekarang, ia akan mengakhiri hidupnya.',
+      'Namun saat hendak menelan semua obat antidepresannya, ia membaca tulisan di kemasan: "dikonsumsi sesudah makan." Dan perutnya berbunyi. Dari situlah perjalanan 24 jam yang tak terduga dimulai — pencarian seporsi mie ayam yang menjadi momen terakhir sebelum segalanya berakhir.',
+      'Di sepanjang perjalanan itu, Ale bertemu dengan hal-hal di luar dugaan: seorang satpam yang mengajaknya makan siang, kucing-kucing liar yang ia beri makan, dan momen-momen kecil yang tanpa ia sadari mulai mempertanyakan tekadnya. Brian Khrisna menunjukkan bagaimana alasan untuk hidup sering kali hadir dalam hal yang paling sederhana.',
+      'Novel ini lahir dari kumpulan wawancara dengan para penyintas depresi akut. Ia bukan solusi, bukan motivasi klise — ia adalah validasi. Bahwa kesedihan itu nyata, perjuangan itu nyata, dan kadang satu mangkuk mie ayam bisa menjadi jangkar yang menahan seseorang dari jurang paling gelap.'
+    ],
+    reflector: {
+      text: 'Novel ini adalah pelukan hangat untuk siapapun yang sedang berjuang dalam sunyi. Brian Khrisna tidak memberikan jawaban mudah — ia hanya menunjukkan bahwa kadang alasan untuk bertahan ditemukan bukan di tempat besar, melainkan di warung mie ayam pinggir jalan.',
+      tags: ['Kesehatan Mental', 'Depresi', 'Harapan', 'Slice of Life', '17+']
+    }
+  }
+];
+
+// ==============================
+// OPENING & AUTH
+// ==============================
+function createParticles() {
+  const container = document.getElementById('particles');
+  for (let i = 0; i < 80; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.cssText = `
+      left: ${Math.random() * 100}%;
+      bottom: ${Math.random() * 20}%;
+      animation-delay: ${Math.random() * 8}s;
+      animation-duration: ${6 + Math.random() * 8}s;
+      opacity: ${0.1 + Math.random() * 0.5};
+      width: ${1 + Math.random() * 2}px;
+      height: ${1 + Math.random() * 2}px;
+    `;
+    container.appendChild(p);
+  }
+}
+createParticles();
+
+function goToAuth() {
+  document.getElementById('opening').style.opacity = '0';
+  document.getElementById('opening').style.transition = 'opacity 0.6s ease';
+  setTimeout(() => {
+    document.getElementById('opening').style.display = 'none';
+    document.getElementById('auth-screen').classList.add('active');
+    // Check if already logged in
+    const sess = sessionStorage.getItem('pk_session');
+    if (sess) {
+      try {
+        currentUser = JSON.parse(sess);
+        showApp();
+      } catch {}
+    }
+  }, 600);
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('login-form').style.display = tab === 'login' ? 'block' : 'none';
+  document.getElementById('register-form').style.display = tab === 'register' ? 'block' : 'none';
+}
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim().toLowerCase();
+  const pass = document.getElementById('login-pass').value;
+  const errEl = document.getElementById('login-error');
+  errEl.classList.remove('show');
+  if (!email || !pass) { showErr(errEl, 'Isi semua kolom terlebih dahulu.'); return; }
+  if (!isValidEmail(email)) { showErr(errEl, 'Format email tidak valid.'); return; }
+  const users = getUsers();
+  if (!users[email]) { showErr(errEl, 'Email tidak terdaftar. Silakan daftar dulu.'); return; }
+  if (users[email].password !== hashPass(pass)) { showErr(errEl, 'Password salah.'); return; }
+  currentUser = { email, name: users[email].name };
+  sessionStorage.setItem('pk_session', JSON.stringify(currentUser));
+  showApp();
+}
+
+function doRegister() {
+  const name = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim().toLowerCase();
+  const pass = document.getElementById('reg-pass').value;
+  const pass2 = document.getElementById('reg-pass2').value;
+  const errEl = document.getElementById('reg-error');
+  errEl.classList.remove('show');
+  if (!name || !email || !pass || !pass2) { showErr(errEl, 'Isi semua kolom.'); return; }
+  if (!isValidEmail(email)) { showErr(errEl, 'Format email tidak valid.'); return; }
+  if (pass.length < 6) { showErr(errEl, 'Password minimal 6 karakter.'); return; }
+  if (pass !== pass2) { showErr(errEl, 'Konfirmasi password tidak cocok.'); return; }
+  const users = getUsers();
+  if (users[email]) { showErr(errEl, 'Email sudah terdaftar. Silakan masuk.'); return; }
+  users[email] = { name, password: hashPass(pass), joinedAt: Date.now() };
+  saveUsers(users);
+  currentUser = { email, name };
+  sessionStorage.setItem('pk_session', JSON.stringify(currentUser));
+  showApp();
+  showToast('Akun berhasil dibuat! Selamat membaca 📚', 'success');
+}
+
+function doLogout() {
+  sessionStorage.removeItem('pk_session');
+  currentUser = null;
+  document.getElementById('app').classList.remove('active');
+  document.getElementById('auth-screen').classList.add('active');
+  showToast('Sampai jumpa lagi! 👋');
+}
+
+function showErr(el, msg) { el.textContent = msg; el.classList.add('show'); }
+function isValidEmail(e) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e); }
+function hashPass(p) {
+  // Simple obfuscation (not cryptographic, but prevents plain text)
+  let h = 0;
+  for (let i = 0; i < p.length; i++) h = ((h << 5) - h) + p.charCodeAt(i) | 0;
+  return 'pk_' + Math.abs(h).toString(36) + '_' + p.length;
+}
+
+// ==============================
+// APP INIT
+// ==============================
+function showApp() {
+  document.getElementById('auth-screen').classList.remove('active');
+  document.getElementById('app').classList.add('active');
+  updateNavUser();
+  renderBooks();
+  renderAgenda();
+  renderChats();
+  updateStats();
+  window.addEventListener('scroll', handleScroll);
+}
+
+function updateNavUser() {
+  document.getElementById('nav-username').textContent = currentUser.name;
+  document.getElementById('nav-avatar').textContent = currentUser.name.charAt(0).toUpperCase();
+  const mobileName = document.getElementById('mobile-username');
+  const mobileEmail = document.getElementById('mobile-email');
+  if (mobileName) mobileName.textContent = currentUser.name;
+  if (mobileEmail) mobileEmail.textContent = currentUser.email;
+}
+
+function toggleMobileMenu() {
+  const menu = document.getElementById('mobile-menu');
+  if (!menu) return;
+  menu.classList.toggle('open');
+}
+
+document.addEventListener('click', function(event) {
+  const menu = document.getElementById('mobile-menu');
+  const trigger = document.getElementById('mobile-menu-trigger');
+  if (!menu || !trigger) return;
+  if (menu.classList.contains('open') && !event.target.closest('#mobile-menu') && !event.target.closest('#mobile-menu-trigger')) {
+    menu.classList.remove('open');
+  }
+});
+
+function handleScroll() {
+  const nb = document.getElementById('navbar');
+  nb.classList.toggle('scrolled', window.scrollY > 20);
+}
+
+// ==============================
+// BOOKS RENDER
+// ==============================
+function getAvgRating(bookId) {
+  const ratings = getRatings();
+  const br = ratings[bookId] || {};
+  const vals = Object.values(br);
+  if (!vals.length) return { avg: 0, count: 0 };
+  const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+  return { avg: Math.round(avg * 10) / 10, count: vals.length };
+}
+
+function renderStars(rating) {
+  let html = '<div class="stars">';
+  for (let i = 1; i <= 5; i++) {
+    html += `<span class="star ${i <= Math.round(rating) ? 'filled' : ''}">★</span>`;
+  }
+  html += '</div>';
+  return html;
+}
+
+function renderBooks(filter = '') {
+  const grid = document.getElementById('books-grid');
+  const filtered = books.filter(b =>
+    !filter ||
+    b.title.toLowerCase().includes(filter.toLowerCase()) ||
+    b.author.toLowerCase().includes(filter.toLowerCase())
+  );
+  grid.innerHTML = filtered.map(book => {
+    const { avg, count } = getAvgRating(book.id);
+    return `
+    <div class="book-card" onclick="openBook('${book.id}')">
+      ${book.badge ? `<div class="book-badge">${book.badge}</div>` : ''}
+      <div class="book-cover-placeholder ${book.coverClass}">
+        <img class="book-cover" src="${book.coverUrl}" onerror="this.style.display='none'" loading="lazy">
+        <span style="position:absolute;font-size:3rem;opacity:0.3">${book.coverEmoji}</span>
+      </div>
+      <div class="book-info">
+        <div class="book-title">${book.title}</div>
+        <div class="book-author">${book.author}</div>
+        <div class="book-rating">
+          ${renderStars(avg)}
+          <span class="rating-count">${avg ? avg.toFixed(1) : '–'} (${count})</span>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updateStats();
+}
+
+function filterBooks(val) {
+  renderBooks(val);
+}
+
+// ==============================
+// AGENDA
+// ==============================
+function renderAgenda() {
+  const agendaItems = [
+    { bookId: 'dasi', reason: 'Cocok untuk kamu yang merindukan orang tua' },
+    { bookId: 'smasm', reason: 'Trending di kalangan pembaca aktif minggu ini' },
+    { bookId: 'akaim', reason: 'Disukai oleh pembaca genre romance & healing' },
+    { bookId: 'akdob', reason: 'Untuk kamu yang sedang belajar melepaskan' }
+  ];
+  document.getElementById('agenda-grid').innerHTML = agendaItems.map(item => {
+    const book = books.find(b => b.id === item.bookId);
+    const { avg } = getAvgRating(book.id);
+    return `
+    <div class="agenda-item" onclick="openBook('${book.id}')">
+      <div class="agenda-thumb ${book.coverClass}">
+        <img src="${book.coverUrl}" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover;border-radius:4px" loading="lazy">
+      </div>
+      <div class="agenda-info">
+        <h4>${book.title}</h4>
+        <p>${book.author} • ${book.ageRec}</p>
+        <div class="agenda-reason">💡 ${item.reason}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ==============================
+// MODAL
+// ==============================
+let currentBookId = null;
+function openBook(id) {
+  currentBookId = id;
+  const book = books.find(b => b.id === id);
+  document.getElementById('book-modal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  // Hero
+  const { avg, count } = getAvgRating(id);
+  document.getElementById('modal-hero-content').innerHTML = `
+    <div class="modal-cover">
+      <div class="modal-cover-ph ${book.coverClass}" style="width:100%;height:100%">
+        <img src="${book.coverUrl}" onerror="this.style.display='none'" style="width:100%;height:100%;object-fit:cover" loading="lazy">
+      </div>
+    </div>
+    <div class="modal-meta">
+      <div class="modal-badge">${book.genre[0]}</div>
+      <h2 class="modal-title">${book.title}</h2>
+      <p class="modal-author">✍️ ${book.author}</p>
+      <div class="modal-info-grid">
+        <div class="info-item"><div class="info-label">Penerbit</div><div class="info-value">${book.penerbit}</div></div>
+        <div class="info-item"><div class="info-label">Tahun</div><div class="info-value">${book.tahun}</div></div>
+        <div class="info-item"><div class="info-label">Tebal</div><div class="info-value">${book.tebal}</div></div>
+        <div class="info-item"><div class="info-label">Usia</div><div class="info-value">${book.ageRec}</div></div>
+        <div class="info-item"><div class="info-label">Rating</div><div class="info-value" style="color:var(--gold)">${avg ? '★ ' + avg.toFixed(1) : 'Belum ada'}</div></div>
+        <div class="info-item"><div class="info-label">Voter</div><div class="info-value">${count} orang</div></div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn-sm btn-red" onclick="bukaBacaBuku('${id}')">📖 Baca Sekarang</button>
+        <button class="btn-sm btn-outline" onclick="switchModalTab('rating', document.querySelector('.modal-tab:nth-child(3)'))">★ Rating</button>
+        <button class="btn-sm btn-outline" onclick="openChat()">💬 Diskusi</button>
+        ${isAdmin() ? `<button class="btn-sm admin-btn" onclick="closeModal();openAdminPanel()">⚙️ Admin Panel</button>` : ''}
+      </div>
+    </div>`;
+
+  // Ringkasan
+  document.getElementById('tab-ringkasan').innerHTML = book.summary.map(p =>
+    `<p class="summary-para">${p}</p>`
+  ).join('');
+
+  // Reflector
+  document.getElementById('tab-reflector').innerHTML = `
+    <div class="reflector-section">
+      <div class="reflector-title">Reflektor Buku</div>
+      <p class="reflector-text">${book.reflector.text}</p>
+      <div class="reflector-tags">${book.reflector.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+    <div style="margin-top:16px;padding:16px;background:var(--bg2);border-radius:8px;border-left:3px solid var(--accent)">
+      <p style="font-size:0.85rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:1px;font-size:0.72rem">Genre</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">${book.genre.map(g => `<span class="tag">${g}</span>`).join('')}</div>
+    </div>`;
+
+  // Rating
+  renderRatingTab(id);
+
+  // Reset tabs
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelector('.modal-tab').classList.add('active');
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('tab-ringkasan').classList.add('active');
+}
+
+function renderRatingTab(bookId) {
+  const ratings = getRatings();
+  const br = ratings[bookId] || {};
+  const myRating = currentUser ? (br[currentUser.email.replace(/\./g, '_')] || 0) : 0;
+  const vals = Object.values(br);
+  const avg = vals.length ? vals.reduce((a, b) => a + b, 0) / vals.length : 0;
+
+  document.getElementById('tab-rating').innerHTML = `
+    <div class="rating-section">
+      <div class="rating-label">Beri Rating Bukumu favoritmu</div>
+      <div class="user-rating-stars" id="rate-stars">
+        ${[1,2,3,4,5].map(i => `<button class="rate-star ${i <= myRating ? 'active' : ''}" onclick="rateBook('${bookId}', ${i})" onmouseover="highlightStars(${i})" onmouseout="restoreStars(${myRating})">${i <= myRating ? '★' : '☆'}</button>`).join('')}
+      </div>
+      <p style="font-size:0.8rem;color:var(--muted)">${myRating ? `Kamu memberi rating: ${myRating} bintang` : 'Klik bintang untuk memberi rating'}</p>
+      <div class="rating-avg-display" style="margin-top:16px">
+        <div class="rating-big">${avg ? avg.toFixed(1) : '–'}</div>
+        <div class="rating-details">
+          ${renderStars(avg)}
+          <small>${vals.length} rating dari pembaca</small>
+        </div>
+      </div>
+    </div>
+    <div id="rating-breakdown">
+      ${[5,4,3,2,1].map(star => {
+        const c = vals.filter(v => v === star).length;
+        const pct = vals.length ? (c / vals.length * 100) : 0;
+        return `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <span style="font-size:0.8rem;color:var(--gold);width:24px">${star}★</span>
+          <div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">
+            <div style="height:100%;width:${pct}%;background:var(--gold);border-radius:3px;transition:width 0.5s"></div>
+          </div>
+          <span style="font-size:0.75rem;color:var(--muted);width:20px">${c}</span>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+function rateBook(bookId, star) {
+  if (!currentUser) { showToast('Login dulu untuk memberi rating.', 'error'); return; }
+  const ratings = getRatings();
+  if (!ratings[bookId]) ratings[bookId] = {};
+  const key = currentUser.email.replace(/\./g, '_');
+  const wasRated = !!ratings[bookId][key];
+  ratings[bookId][key] = star;
+  saveRatings(ratings);
+  renderRatingTab(bookId);
+  renderBooks();
+  renderAgenda();
+  updateStats();
+  showToast(`Rating ${star} bintang diberikan! ⭐`, 'success');
+  if (!wasRated) {
+    const sc = document.getElementById('stat-ratings');
+    sc.textContent = parseInt(sc.textContent || 0) + 1;
+  }
+}
+
+function highlightStars(n) {
+  document.querySelectorAll('.rate-star').forEach((s, i) => {
+    s.textContent = i < n ? '★' : '☆';
+    s.style.color = i < n ? 'var(--gold)' : '#333';
+  });
+}
+function restoreStars(n) {
+  document.querySelectorAll('.rate-star').forEach((s, i) => {
+    s.textContent = i < n ? '★' : '☆';
+    s.style.color = i < n ? 'var(--gold)' : '#333';
+  });
+}
+
+function closeModal() {
+  document.getElementById('book-modal').classList.remove('active');
+  document.body.style.overflow = '';
+  currentBookId = null;
+}
+document.getElementById('book-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function switchModalTab(tabId, btn) {
+  document.querySelectorAll('.modal-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  else document.querySelector(`.modal-tab:nth-child(${tabId === 'ringkasan' ? 1 : tabId === 'reflector' ? 2 : 3})`).classList.add('active');
+  document.getElementById('tab-' + tabId).classList.add('active');
+}
+
+// ==============================
+// CHAT (P2P - shared storage)
+// ==============================
+let chatOpen = false;
+let lastMsgCount = 0;
+
+function toggleChat() {
+  chatOpen = !chatOpen;
+  const panel = document.getElementById('chat-panel');
+  panel.classList.toggle('open', chatOpen);
+  if (chatOpen) {
+    document.getElementById('chat-badge').classList.remove('show');
+    document.getElementById('chat-input').focus();
+    renderChats();
+    scrollChatBottom();
+  }
+}
+
+function openChat() {
+  if (!chatOpen) toggleChat();
+}
+
+function sendChatMsg() {
+  if (!currentUser) { showToast('Login dulu.', 'error'); return; }
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+  const chats = getChats();
+  chats.push({
+    id: Date.now(),
+    user: currentUser.name,
+    email: currentUser.email,
+    text: msg,
+    time: Date.now()
+  });
+  // Keep last 100 messages
+  if (chats.length > 100) chats.splice(0, chats.length - 100);
+  saveChats(chats);
+  input.value = '';
+  renderChats();
+  scrollChatBottom();
+  updateStats();
+}
+
+function renderChats() {
+  const chats = getChats();
+  const container = document.getElementById('chat-messages');
+  if (!chats.length) {
+    container.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:0.85rem;margin-top:30px">
+      Belum ada pesan. Mulai diskusi! 📖</div>`;
+    return;
+  }
+  container.innerHTML = chats.map(c => {
+    const isMine = currentUser && c.email === currentUser.email;
+    const time = new Date(c.time).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    return `<div class="chat-msg ${isMine ? 'mine' : 'other'}">
+      ${!isMine ? `<div class="chat-msg-name">${sanitize(c.user)}</div>` : ''}
+      ${sanitize(c.text)}
+      <div class="chat-msg-time">${time}</div>
+    </div>`;
+  }).join('');
+  const count = chats.length;
+  document.getElementById('stat-msgs').textContent = count;
+  if (!chatOpen && count > lastMsgCount) {
+    const badge = document.getElementById('chat-badge');
+    badge.textContent = count - lastMsgCount;
+    badge.classList.add('show');
+  }
+  lastMsgCount = count;
+}
+
+function scrollChatBottom() {
+  const m = document.getElementById('chat-messages');
+  setTimeout(() => m.scrollTop = m.scrollHeight, 50);
+}
+
+// Poll for new messages
+setInterval(() => {
+  if (currentUser) renderChats();
+}, 3000);
+
+// ==============================
+// STATS
+// ==============================
+function updateStats() {
+  const users = getUsers();
+  document.getElementById('stat-users').textContent = Math.max(1, Object.keys(users).length);
+  const ratings = getRatings();
+  let totalR = 0;
+  Object.values(ratings).forEach(br => totalR += Object.keys(br).length);
+  document.getElementById('stat-ratings').textContent = totalR;
+  const chats = getChats();
+  document.getElementById('stat-msgs').textContent = chats.length;
+}
+
+// ==============================
+// UTILS
+// ==============================
+function scrollToSection(id) {
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show' + (type ? ' ' + type : '');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Auto-enter if session exists
+window.addEventListener('DOMContentLoaded', () => {
+  const sess = sessionStorage.getItem('pk_session');
+  if (sess) {
+    try {
+      currentUser = JSON.parse(sess);
+      // Show app directly, skip opening for returning session
+    } catch {}
+  }
+});
+// ==============================
+// BOOK CONTENT — SERVER-SYNC VIA JSONBIN / FALLBACK LOCALSTORAGE
+// ==============================
+
+const JSONBIN_BIN_ID = '6a1ab8937a1ff259d0c5bc8f';
+const JSONBIN_API_KEY = '$2a$10$Bna54Jera4koziH5.7divO4PLX95OBe2TO0bwVYTVK9KOYC/YSRMS';
+const JSONBIN_URL = JSONBIN_BIN_ID
+  ? `https://api.jsonbin.io/v3/b/${JSONBIN_BIN_ID}`
+  : null;
+
+// State sinkronisasi
+let serverData = null;
+let syncPending = false;
+
+async function fetchServerData() {
+  if (!JSONBIN_URL) return null;
+  try {
+    const res = await fetch(JSONBIN_URL + '/latest', {
+      headers: { 'X-Master-Key': JSONBIN_API_KEY }
+    });
+    if (!res.ok) return null;
+    const json = await res.json();
+    return json.record || {};
+  } catch { return null; }
+}
+
+async function pushServerData(data) {
+  if (!JSONBIN_URL) return false;
+  try {
+    const res = await fetch(JSONBIN_URL, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Master-Key': JSONBIN_API_KEY
+      },
+      body: JSON.stringify(data)
+    });
+    return res.ok;
+  } catch { return false; }
+}
+
+// Merge server + local: server wins untuk data shared (chat, ratings, users)
+async function syncData() {
+  const remote = await fetchServerData();
+  if (!remote) return; // offline mode, pakai localStorage
+  const local = getStore();
+
+  // Merge: gabungkan users, ratings, chats dari server dan lokal
+  const merged = {
+    users: Object.assign({}, local.users || {}, remote.users || {}),
+    ratings: mergeRatings(local.ratings || {}, remote.ratings || {}),
+    chats: mergeChats(local.chats || [], remote.chats || []),
+    bookContents: Object.assign({}, local.bookContents || {}, remote.bookContents || {})
+  };
+  saveStore(merged);
+  serverData = merged;
+
+  renderBooks();
+  renderChats();
+  updateStats();
+}
+
+function mergeRatings(a, b) {
+  const result = Object.assign({}, a);
+  for (const bookId in b) {
+    result[bookId] = Object.assign({}, a[bookId] || {}, b[bookId]);
+  }
+  return result;
+}
+
+function mergeChats(a, b) {
+  const map = {};
+  [...a, ...b].forEach(m => map[m.id] = m);
+  return Object.values(map)
+    .sort((x, y) => x.time - y.time)
+    .slice(-100);
+}
+
+async function syncAndPush() {
+  const data = getStore();
+  const ok = await pushServerData({
+    users: data.users || {},
+    ratings: data.ratings || {},
+    chats: data.chats || [],
+    bookContents: data.bookContents || {}
+  });
+  if (ok) {
+    const ind = document.getElementById('save-indicator');
+    if (ind) { ind.classList.add('show'); setTimeout(() => ind.classList.remove('show'), 2000); }
+  }
+}
+
+// ==============================
+// BOOK CONTENT STORAGE
+// ==============================
+function getBookContents() {
+  const s = getStore();
+  return s.bookContents || {};
+}
+function saveBookContents(bc) {
+  const s = getStore();
+  s.bookContents = bc;
+  saveStore(s);
+}
+function getBookContent(bookId) {
+  const urls = getBookUrls();
+  books.forEach(b => { if (urls[b.id]) b.readUrl = urls[b.id]; });
+  return getBookContents()[bookId] || { chapters: [] };
+}
+function saveBookContentToStore(bookId, contentObj) {
+  const bc = getBookContents();
+  bc[bookId] = contentObj;
+  saveBookContents(bc);
+}
+
+// ==============================
+// ADMIN CHECK
+// ==============================
+// isAdmin() is defined in ADMIN SYSTEM section
+
+// ==============================
+// READER
+// ==============================
+let readerBookId = null;
+let readerChapterIdx = 0;
+
+function openReader(bookId) {
+  const book = books.find(b => b.id === bookId);
+  if (!book) return;
+  readerBookId = bookId;
+  readerChapterIdx = 0;
+
+  document.getElementById('reader-book-title').textContent = book.title;
+  document.getElementById('reader-book-author').textContent = book.author;
+  document.getElementById('reader-overlay').classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  closeModal();
+  renderReaderChapter();
+}
+
+function closeReader() {
+  document.getElementById('reader-overlay').classList.remove('active');
+  document.body.style.overflow = '';
+  readerBookId = null;
+}
+
+function renderReaderChapter() {
+  const content = getBookContent(readerBookId);
+  const chapters = content.chapters || [];
+  const total = chapters.length;
+  const wrap = document.getElementById('reader-content-wrap');
+  const el = document.getElementById('reader-content');
+
+  // Update progress
+  const pct = total > 0 ? Math.round(((readerChapterIdx + 1) / total) * 100) : 0;
+  document.getElementById('reader-progress-fill').style.width = pct + '%';
+  document.getElementById('reader-progress-text').textContent =
+    total > 0 ? `Bab ${readerChapterIdx + 1} / ${total}` : 'Belum ada bab';
+
+  if (!total) {
+    el.innerHTML = `<div class="reader-empty">
+      <div class="reader-empty-icon">📭</div>
+      <h3>Isi buku belum tersedia</h3>
+      <p>Isi buku sedang disiapkan oleh pengelola.<br>
+      ${isAdmin() ? '<br><strong style="color:var(--accent)">Kamu admin — klik tombol ✏️ Edit Isi di detail buku untuk menambahkan isi.</strong>' : 'Silakan kembali lagi nanti.'}</p>
+    </div>`;
+    wrap.scrollTop = 0;
+    return;
+  }
+
+  const ch = chapters[readerChapterIdx];
+  const paras = (ch.content || '').split('\n').filter(p => p.trim());
+
+  el.innerHTML = `
+    <div class="reader-chapter-title">
+      <span>Bab ${readerChapterIdx + 1}</span> — ${sanitize(ch.title || 'Tanpa Judul')}
+    </div>
+    ${paras.length
+      ? paras.map(p => `<p class="reader-para">${sanitize(p)}</p>`).join('')
+      : '<p class="reader-para" style="color:var(--muted);font-style:italic">Konten bab ini masih kosong.</p>'
+    }
+    <div class="reader-chapter-nav">
+      <button class="reader-nav-btn" onclick="readerGoChapter(${readerChapterIdx - 1})" ${readerChapterIdx === 0 ? 'disabled' : ''}>
+        ← Bab Sebelumnya
+      </button>
+      <div class="reader-chapter-info">${pct}% terbaca</div>
+      <button class="reader-nav-btn" onclick="readerGoChapter(${readerChapterIdx + 1})" ${readerChapterIdx >= total - 1 ? 'disabled' : ''}>
+        Bab Berikutnya →
+      </button>
+    </div>`;
+  wrap.scrollTop = 0;
+}
+
+function readerGoChapter(idx) {
+  const content = getBookContent(readerBookId);
+  const total = (content.chapters || []).length;
+  if (idx < 0 || idx >= total) return;
+  readerChapterIdx = idx;
+  renderReaderChapter();
+}
+
+function setFontSize(size) {
+  const el = document.getElementById('reader-content');
+  el.className = 'reader-content font-' + size;
+  document.querySelectorAll('.reader-btn').forEach(b => b.classList.remove('active-font'));
+  event.target.classList.add('active-font');
+}
+
+// ==============================
+// EDIT BOOK CONTENT (Admin)
+// ==============================
+let editBookId = null;
+let editChapters = [];
+
+function openEditModal(bookId) {
+  if (!isAdmin()) { showToast('Hanya admin yang bisa mengedit isi buku.', 'error'); return; }
+  editBookId = bookId;
+  const book = books.find(b => b.id === bookId);
+  const content = getBookContent(bookId);
+  editChapters = JSON.parse(JSON.stringify(content.chapters || []));
+
+  document.getElementById('edit-book-title-label').textContent = book.title;
+  document.getElementById('edit-overlay').classList.add('active');
+  renderEditChapters();
+}
+
+function closeEditModal() {
+  document.getElementById('edit-overlay').classList.remove('active');
+  editBookId = null;
+  editChapters = [];
+}
+
+function renderEditChapters() {
+  const list = document.getElementById('edit-chapter-list');
+  if (!editChapters.length) {
+    list.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;font-size:0.85rem">Belum ada bab. Klik "+ Tambah Bab Baru" untuk mulai.</div>';
+    return;
+  }
+  list.innerHTML = editChapters.map((ch, i) => `
+    <div class="edit-chapter-item" id="edit-ch-${i}">
+      <div class="edit-chapter-header" onclick="toggleEditChapter(${i})">
+        <div class="edit-chapter-num">${i + 1}</div>
+        <div class="edit-chapter-name">${sanitize(ch.title || 'Bab ' + (i + 1))}</div>
+        <div class="edit-chapter-toggle" id="edit-toggle-${i}">▼</div>
+      </div>
+      <div class="edit-chapter-body" id="edit-body-${i}">
+        <div class="edit-label">Judul Bab</div>
+        <input class="edit-input" value="${sanitize(ch.title || '')}"
+          oninput="editChapters[${i}].title = this.value; updateEditChapterName(${i})">
+        <div class="edit-label">Isi Bab (pisahkan paragraf dengan baris baru)</div>
+        <textarea class="edit-textarea"
+          oninput="editChapters[${i}].content = this.value">${sanitize(ch.content || '')}</textarea>
+        <button class="btn-del-chapter" onclick="deleteChapter(${i})">🗑 Hapus Bab Ini</button>
+      </div>
+    </div>`).join('');
+}
+
+function toggleEditChapter(i) {
+  const body = document.getElementById('edit-body-' + i);
+  const toggle = document.getElementById('edit-toggle-' + i);
+  const isOpen = body.classList.toggle('open');
+  toggle.textContent = isOpen ? '▲' : '▼';
+}
+
+function updateEditChapterName(i) {
+  const nameEl = document.querySelector(`#edit-ch-${i} .edit-chapter-name`);
+  if (nameEl) nameEl.textContent = editChapters[i].title || 'Bab ' + (i + 1);
+}
+
+function addChapter() {
+  editChapters.push({ title: 'Bab ' + (editChapters.length + 1), content: '' });
+  renderEditChapters();
+  // Auto-open last chapter
+  setTimeout(() => {
+    const i = editChapters.length - 1;
+    const body = document.getElementById('edit-body-' + i);
+    const toggle = document.getElementById('edit-toggle-' + i);
+    if (body) { body.classList.add('open'); toggle.textContent = '▲'; }
+  }, 50);
+}
+
+function deleteChapter(i) {
+  if (!confirm(`Hapus Bab ${i + 1}?`)) return;
+  editChapters.splice(i, 1);
+  renderEditChapters();
+}
+
+function saveBookContent() {
+  if (!editBookId) return;
+  saveBookContentData(editBookId, { chapters: editChapters });
+  showToast('Isi buku berhasil disimpan! 📚', 'success');
+  const ind = document.getElementById('save-indicator');
+  ind.classList.add('show');
+  setTimeout(() => ind.classList.remove('show'), 2000);
+  // Push ke server jika terkonfigurasi
+  syncAndPush();
+}
+
+// ==============================
+// AUTO SYNC INIT
+// ==============================
+// Jalankan sync saat app pertama dibuka
+const _origShowApp = typeof showApp === 'function' ? showApp : null;
+document.addEventListener('DOMContentLoaded', () => {
+  // Sync setiap 15 detik jika JSONBin dikonfigurasi
+  if (JSONBIN_URL) {
+    syncData();
+    setInterval(syncData, 15000);
+  }
+});
+// ==============================
+// ADMIN SYSTEM
+// ==============================
+const ADMIN_EMAIL = 'admin@admin.crown';
+
+function isAdmin() {
+  return currentUser && currentUser.email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+}
+
+function openAdminPanel() {
+  if (!isAdmin()) { showToast('Akses ditolak.', 'error'); return; }
+  document.getElementById('admin-overlay').classList.add('active');
+  document.getElementById('admin-email-show').textContent = currentUser.email;
+  document.getElementById('admin-logged-as').textContent = 'Login: ' + currentUser.name;
+  renderAdminOverview();
+  renderAdminBooks();
+  renderAdminUsers();
+  renderAdminChatLog();
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-overlay').classList.remove('active');
+}
+
+function switchAdminTab(tabId, btn) {
+  document.querySelectorAll('.admin-panel-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('apanel-' + tabId).classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+
+// OVERVIEW
+function renderAdminOverview() {
+  const users = getUsers();
+  const ratings = getRatings();
+  const chats = getChats();
+  let totalRatings = 0;
+  Object.values(ratings).forEach(br => totalRatings += Object.keys(br).length);
+  const urls = getBookUrls();
+  const linkedBooks = Object.values(urls).filter(u => u && u.trim()).length;
+
+  document.getElementById('admin-stats-grid').innerHTML = `
+    <div class="admin-stat-card"><div class="num">${Object.keys(users).length}</div><div class="lbl">Total User</div></div>
+    <div class="admin-stat-card"><div class="num">${totalRatings}</div><div class="lbl">Total Rating</div></div>
+    <div class="admin-stat-card"><div class="num">${chats.length}</div><div class="lbl">Pesan Chat</div></div>
+    <div class="admin-stat-card"><div class="num">${linkedBooks}/4</div><div class="lbl">Buku Berlink</div></div>
+  `;
+}
+
+// BOOK URLS STORAGE
+function getBookUrls() {
+  const s = getStore();
+  return s.bookUrls || {};
+}
+function saveBookUrls(urls) {
+  const s = getStore();
+  s.bookUrls = urls;
+  saveStore(s);
+}
+
+function renderAdminBooks() {
+  const urls = getBookUrls();
+  document.getElementById('admin-books-list').innerHTML = books.map(book => `
+    <div class="admin-book-row">
+      <div class="admin-book-thumb">
+        <img src="${book.coverUrl}" onerror="this.style.display='none'" loading="lazy">
+      </div>
+      <div class="admin-book-info">
+        <h4>${book.title}</h4>
+        <p>${book.author}</p>
+      </div>
+      <input class="admin-url-input" id="url-${book.id}"
+        placeholder="https://link-baca-buku.com/..."
+        value="${urls[book.id] || ''}">
+    </div>`).join('');
+}
+
+function saveAllBookUrls() {
+  const urls = {};
+  books.forEach(book => {
+    const el = document.getElementById('url-' + book.id);
+    if (el) urls[book.id] = el.value.trim();
+  });
+  saveBookUrls(urls);
+  showToast('Link buku berhasil disimpan! ✅', 'success');
+  renderAdminOverview();
+}
+
+// USERS
+function renderAdminUsers() {
+  const users = getUsers();
+  const entries = Object.entries(users);
+  if (!entries.length) {
+    document.getElementById('admin-users-tbody').innerHTML =
+      '<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">Belum ada pengguna terdaftar.</td></tr>';
+    return;
+  }
+  document.getElementById('admin-users-tbody').innerHTML = entries.map(([email, data], i) => {
+    const isAdminUser = email.toLowerCase() === ADMIN_EMAIL.toLowerCase();
+    const joined = data.joinedAt ? new Date(data.joinedAt).toLocaleDateString('id-ID') : '—';
+    return `<tr>
+      <td style="color:var(--muted)">${i + 1}</td>
+      <td style="font-weight:600">${sanitize(data.name || '—')}</td>
+      <td style="font-size:0.78rem;color:var(--muted)">${sanitize(email)}</td>
+      <td><span class="user-role-badge ${isAdminUser ? 'role-admin' : 'role-user'}">${isAdminUser ? '👑 Admin' : '👤 User'}</span></td>
+      <td style="font-size:0.78rem;color:var(--muted)">${joined}</td>
+      <td>${!isAdminUser ? `<button class="btn-kick" onclick="kickUser('${email.replace(/'/g,"\\'")}')">Hapus</button>` : '<span style="color:#555;font-size:0.75rem">—</span>'}</td>
+    </tr>`;
+  }).join('');
+}
+
+function kickUser(email) {
+  if (!confirm(`Hapus akun ${email}?`)) return;
+  const users = getUsers();
+  delete users[email];
+  saveUsers(users);
+  renderAdminUsers();
+  renderAdminOverview();
+  updateStats();
+  showToast('Akun dihapus.', 'success');
+}
+
+// CHAT LOG
+function renderAdminChatLog() {
+  const chats = getChats();
+  if (!chats.length) {
+    document.getElementById('admin-chat-log').innerHTML =
+      '<div style="text-align:center;color:var(--muted);padding:20px">Belum ada pesan.</div>';
+    return;
+  }
+  document.getElementById('admin-chat-log').innerHTML = chats.map(c => {
+    const time = new Date(c.time).toLocaleString('id-ID', { hour: '2-digit', minute: '2-digit', day: '2-digit', month: 'short' });
+    return `<div class="admin-chat-entry">
+      <div class="admin-chat-user">${sanitize(c.user)}</div>
+      <div class="admin-chat-text">${sanitize(c.text)}</div>
+      <div class="admin-chat-time">${time}</div>
+    </div>`;
+  }).join('');
+}
+
+function clearAllChats() {
+  saveChats([]);
+  renderChats();
+  renderAdminChatLog();
+  renderAdminOverview();
+  updateStats();
+  showToast('Semua chat dihapus.', 'success');
+}
+
+// readUrl injection moved into openBook directly
+
+// ==============================
+// TOMBOL BACA — buka link dari admin atau default
+// ==============================
+function bukaBacaBuku(bookId) {
+  const urls = getBookUrls();
+  const customUrl = urls[bookId] && urls[bookId].trim();
+  const target = customUrl || 'https://baca-buku-syarat-ketentuan.netlify.app';
+  window.open(target, '_blank', 'noopener,noreferrer');
+}
+
+// Fix saveBookContent name conflict (fungsi vs variable)
+function saveBookContentData(bookId, contentObj) {
+  const bc = getBookContents();
+  bc[bookId] = contentObj;
+  saveBookContents(bc);
+}
+
+</script>
+</body>
+</html>
